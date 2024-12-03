@@ -42,37 +42,42 @@ function parseSection(line) {
   for (let i = 0; i < line.length; i++) {
     const match = matchIdentifier(line, i);
 
-    if (
-      match?.identifier === identifiers.do ||
-      match?.identifier === identifiers.dont
-    ) {
-      if (isCloseParen(line[match.nextIndex])) {
-        flag = match.identifier === identifiers.do; // if do set to true, otherwise it's don't, set false
-      }
+    switch (match?.identifier) {
+      case identifiers.do:
+      case identifiers.dont:
+        if (isCloseParen(line[match.nextIndex])) {
+          flag = match.identifier === identifiers.do;
+        }
 
-      i = match.nextIndex;
-    } else if (match?.identifier === identifiers.mul) {
-      const parens = {
-        left: i + 3,
-        right: i + 4,
-      };
+        i = match.nextIndex;
+        break;
 
-      while (!isCloseParen(line[parens.right]) && isValid(line[parens.right])) {
-        parens.right += 1;
-      }
+      case identifiers.mul:
+        const parens = {
+          left: i + 3,
+          right: i + 4,
+        };
 
-      const [x, y] = isCloseParen(line[parens.right])
-        ? line
-            .substring(parens.left + 1, parens.right)
-            .split(",")
-            .map((char) => parseInt(char))
-        : [0, 0];
+        while (
+          !isCloseParen(line[parens.right]) &&
+          isValid(line[parens.right])
+        ) {
+          parens.right += 1;
+        }
 
-      if (flag) {
-        total += x * y;
-      }
+        const [x, y] = isCloseParen(line[parens.right])
+          ? line
+              .substring(parens.left + 1, parens.right)
+              .split(",")
+              .map((char) => parseInt(char))
+          : [0, 0];
 
-      i = parens.right;
+        if (flag) {
+          total += x * y;
+        }
+
+        i = parens.right;
+        break;
     }
   }
 
